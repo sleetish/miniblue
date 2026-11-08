@@ -25,11 +25,13 @@ type Handler struct {
 // at startup so every subsequent request knows whether to use real containers.
 func NewHandler(s *store.Store) *Handler {
 	h := &Handler{store: s}
-	h.dockerAvail = h.checkDocker()
+	if os.Getenv("MINIBLUE_ENABLE_DOCKER_BACKENDS") == "1" {
+		h.dockerAvail = h.checkDocker()
+	}
 	if h.dockerAvail {
 		log.Println("[aci] Docker is available – container groups will use real containers")
 	} else {
-		log.Println("[aci] Docker is NOT available – container groups will be stub-only")
+		log.Println("[aci] Docker backend disabled or unavailable – container groups will be stub-only")
 	}
 	return h
 }

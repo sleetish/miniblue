@@ -39,6 +39,7 @@ Usage:
 Environment variables:
   PORT                   HTTP port (default: 4566)
   TLS_PORT               HTTPS port (default: 4567)
+  LISTEN_HOST            Listener address (default: 127.0.0.1; Docker image: 0.0.0.0)
   LOG_LEVEL              Log level: debug, info, warn, error (default: info)
   DATABASE_URL           PostgreSQL URL for persistent storage
   PERSISTENCE            Set to 1 to enable file-based state persistence (~/.miniblue/state.json)
@@ -46,6 +47,7 @@ Environment variables:
   SERVICES               Comma-separated list of services to enable (default: all)
   POSTGRES_URL           Real PostgreSQL for DB for PostgreSQL service
   REDIS_URL              Real Redis for Azure Cache for Redis service
+  MINIBLUE_ENABLE_DOCKER_BACKENDS=1  Enable real Docker-backed ACI and VM services
   LOCAL_AZURE_CERT_DIR   TLS certificate directory (default: ~/.miniblue)
   MINIBLUE_INIT_DIR      Init hook scripts directory (default: /etc/miniblue/init/ready.d)
 
@@ -96,19 +98,26 @@ Documentation: https://moabukar.github.io/miniblue`)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	// Start HTTP
-	httpServer := &http.Server{Addr: ":" + port, Handler: handler}
+	bindHost := listenHost()
+	httpAddr := listenAddress(bindHost, port)
+	tlsAddr := listenAddress(bindHost, tlsPort)
+	if !isLoopbackListenHost(bindHost) {
+		log.Printf("WARNING: listening on a non-loopback address without API authentication; restrict access with network controls")
+	}
+
+	httpServer := &http.Server{Addr: httpAddr, Handler: handler}
 	go func() {
-		log.Printf("miniblue HTTP  on http://localhost:%s", port)
+		log.Printf("miniblue HTTP  listening on %s", httpAddr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Printf("HTTP server error: %v", err)
 		}
 	}()
 
 	// Start HTTPS
-	log.Printf("miniblue HTTPS on https://localhost:%s", tlsPort)
+	log.Printf("miniblue HTTPS listening on %s", tlsAddr)
 	_ = certPEM // already saved to disk
 	tlsServer := &http.Server{
-		Addr:    ":" + tlsPort,
+		Addr:    tlsAddr,
 		Handler: handler,
 		TLSConfig: &tls.Config{
 			Certificates: []tls.Certificate{cert},
@@ -162,6 +171,25 @@ Documentation: https://moabukar.github.io/miniblue`)
 	httpServer.Shutdown(ctx)
 	tlsServer.Shutdown(ctx)
 	log.Println("miniblue stopped")
+}
+
+func listenHost() string {
+	if host := os.Getenv("LISTEN_HOST"); host != "" {
+		return host
+	}
+	return "127.0.0.1"
+}
+
+func listenAddress(host, port string) string {
+	return net.JoinHostPort(host, port)
+}
+
+func isLoopbackListenHost(host string) bool {
+	if host == "localhost" {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 func runInitHooks() {

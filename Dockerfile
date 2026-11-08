@@ -17,6 +17,7 @@ COPY --from=builder /healthcheck /healthcheck
 COPY --from=builder --chown=65534:65534 /home/nonroot /home/nonroot
 EXPOSE 4566 4567
 ENV PORT=4566
+ENV LISTEN_HOST=0.0.0.0
 ENV HOME=/home/nonroot
 USER 65534
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD ["/healthcheck"]
@@ -33,6 +34,7 @@ COPY --from=builder /healthcheck /healthcheck
 COPY --from=builder --chown=65534:65534 /home/nonroot /home/nonroot
 EXPOSE 4566 4567
 ENV PORT=4566
+ENV LISTEN_HOST=0.0.0.0
 ENV HOME=/home/nonroot
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD ["/healthcheck"]
 ENTRYPOINT ["/miniblue"]

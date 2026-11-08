@@ -35,8 +35,8 @@ services:
   miniblue:
     image: moabukar/miniblue:latest
     ports:
-      - "4566:4566"
-      - "4567:4567"
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4567:4567"
     environment:
       - PORT=4566
       - LOG_LEVEL=info
@@ -58,8 +58,8 @@ services:
   miniblue:
     image: moabukar/miniblue:latest
     ports:
-      - "4566:4566"
-      - "4567:4567"
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4567:4567"
     healthcheck:
       test: ["CMD", "wget", "--no-check-certificate", "-q", "--spider", "http://localhost:4566/health"]
       interval: 10s
@@ -118,8 +118,8 @@ Pass configuration via `-e` flags or the `environment` section:
 ```bash
 docker run -d \
   --name miniblue \
-  -p 8080:8080 \
-  -p 8443:8443 \
+  -p 127.0.0.1:8080:8080 \
+  -p 127.0.0.1:8443:8443 \
   -e PORT=8080 \
   -e TLS_PORT=8443 \
   -e LOG_LEVEL=debug \
@@ -135,8 +135,8 @@ miniblue generates a self-signed certificate inside the container. To use it on 
 ```bash
 docker run -d \
   --name miniblue \
-  -p 4566:4566 \
-  -p 4567:4567 \
+  -p 127.0.0.1:4566:4566 \
+  -p 127.0.0.1:4567:4567 \
   -v ~/.miniblue:/root/.miniblue \
   moabukar/miniblue:latest
 ```
@@ -149,7 +149,7 @@ The certificate is now available at `~/.miniblue/cert.pem` on your host.
 git clone https://github.com/moabukar/miniblue.git
 cd miniblue
 docker build -t miniblue:local .
-docker run -p 4566:4566 -p 4567:4567 miniblue:local
+docker run -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 miniblue:local
 ```
 
 Or via Make:

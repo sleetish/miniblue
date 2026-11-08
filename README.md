@@ -27,7 +27,7 @@
 brew tap moabukar/tap && brew install miniblue
 
 # Or Docker
-docker run -p 4566:4566 -p 4567:4567 moabukar/miniblue:latest
+docker run -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 moabukar/miniblue:latest
 ```
 
 Then interact with it:
@@ -96,7 +96,7 @@ See [examples/terraform/](examples/terraform/) for full examples including three
 |---------|---------|
 | Real PostgreSQL databases | `POSTGRES_URL=postgres://user:pass@host:5432/db` |
 | Real Redis connectivity | `REDIS_URL=redis://host:6379` |
-| Real Docker containers (ACI) | Docker daemon running |
+| Real Docker containers (ACI) | `MINIBLUE_ENABLE_DOCKER_BACKENDS=1` and Docker daemon running |
 | Real k3s cluster per AKS resource | `AKS_BACKEND=k3s` (Docker daemon required) |
 | File persistence | `PERSISTENCE=1` |
 | Postgres persistence | `DATABASE_URL=postgres://...` |
@@ -106,8 +106,8 @@ Real backends shell out to the host Docker daemon. The default `moabukar/miniblu
 ```bash
 docker build --target=full -t miniblue:full .
 docker run -v /var/run/docker.sock:/var/run/docker.sock \
-  -p 4566:4566 -p 4567:4567 \
-  -e AKS_BACKEND=k3s miniblue:full
+  -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 \
+  -e MINIBLUE_ENABLE_DOCKER_BACKENDS=1 -e AKS_BACKEND=k3s miniblue:full
 ```
 
 miniblue tears down its k3s containers on graceful shutdown (`SIGTERM`/`SIGINT`/`docker stop`); orphans from a forced kill are reaped by the next start.
@@ -118,9 +118,11 @@ miniblue tears down its k3s containers on graceful shutdown (`SIGTERM`/`SIGINT`/
 |----------|---------|-------------|
 | `PORT` | `4566` | HTTP port |
 | `TLS_PORT` | `4567` | HTTPS port |
+| `LISTEN_HOST` | `127.0.0.1` (native), `0.0.0.0` (Docker image) | Address to bind; use a loopback-only host port mapping for local Docker runs |
 | `LOG_LEVEL` | `info` | debug, info, warn, error |
 | `SERVICES` | all | Comma-separated list to enable selectively |
 | `PERSISTENCE` | off | Set to `1` for file-based persistence |
+| `MINIBLUE_ENABLE_DOCKER_BACKENDS` | off | Set to `1` to allow ACI/VM APIs to start real Docker containers |
 
 Full configuration reference in the [docs](https://miniblue.io/getting-started/configuration/).
 

@@ -13,7 +13,7 @@
 |---------|----------|---------|
 | Real PostgreSQL databases | PostgreSQL server (or Docker) | `POSTGRES_URL=postgres://user:pass@host:5432/db?sslmode=disable` |
 | Real Redis connectivity | Redis server (or Docker) | `REDIS_URL=redis://host:6379` |
-| Real Docker containers (ACI) | Docker daemon running | Docker socket available at `/var/run/docker.sock` |
+| Real Docker containers (ACI) | `MINIBLUE_ENABLE_DOCKER_BACKENDS=1` and Docker daemon running | Docker socket available at `/var/run/docker.sock` |
 | Persistent storage (Postgres) | PostgreSQL server | `DATABASE_URL=postgres://...` |
 | Persistent storage (file) | Nothing extra | `PERSISTENCE=1` |
 
@@ -43,13 +43,13 @@ Pull and run with a single command:
 === "Docker Hub"
 
     ```bash
-    docker run -p 4566:4566 -p 4567:4567 moabukar/miniblue:latest
+    docker run -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 moabukar/miniblue:latest
     ```
 
 === "GitHub Container Registry"
 
     ```bash
-    docker run -p 4566:4566 -p 4567:4567 ghcr.io/moabukar/miniblue:latest
+    docker run -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 ghcr.io/moabukar/miniblue:latest
     ```
 
 Verify it is running:

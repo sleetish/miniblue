@@ -13,7 +13,7 @@ miniblue is a free, open-source Azure emulator that runs entirely on your machin
 Azure developers have to juggle 5+ separate emulators (Azurite, Cosmos DB Emulator, Functions Core Tools, etc.) just to get basic local dev working. miniblue replaces all of them with a single binary on a single port.
 
 ```bash
-docker run -p 4566:4566 -p 4567:4567 moabukar/miniblue:latest
+docker run -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 moabukar/miniblue:latest
 ```
 
 That's it. 26 Azure services are now running locally.
@@ -62,7 +62,7 @@ That's it. 26 Azure services are now running locally.
 go install github.com/moabukar/miniblue/cmd/miniblue@latest
 
 # Or use Docker
-docker run -p 4566:4566 -p 4567:4567 moabukar/miniblue:latest
+docker run -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 moabukar/miniblue:latest
 
 # Create a resource group
 curl -X PUT "http://localhost:4566/subscriptions/sub1/resourcegroups/myRG?api-version=2020-06-01" \

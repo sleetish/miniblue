@@ -24,17 +24,17 @@ type Handler struct {
 }
 
 // NewHandler creates a new VM handler, probing Docker availability once at
-// startup. MINIBLUE_DISABLE_DOCKER forces stub mode (used by tests to stay
-// deterministic on machines that do have Docker).
+// startup. Docker-backed VMs require MINIBLUE_ENABLE_DOCKER_BACKENDS=1;
+// MINIBLUE_DISABLE_DOCKER forces stub mode (used by tests).
 func NewHandler(s *store.Store) *Handler {
 	h := &Handler{store: s}
-	if os.Getenv("MINIBLUE_DISABLE_DOCKER") == "" {
+	if os.Getenv("MINIBLUE_ENABLE_DOCKER_BACKENDS") == "1" && os.Getenv("MINIBLUE_DISABLE_DOCKER") == "" {
 		h.dockerAvail = checkDocker()
 	}
 	if h.dockerAvail {
 		log.Println("[vm] Docker is available – virtual machines will use real containers")
 	} else {
-		log.Println("[vm] Docker is NOT available – virtual machines will be stub-only")
+		log.Println("[vm] Docker backend disabled or unavailable – virtual machines will be stub-only")
 	}
 	return h
 }

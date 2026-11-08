@@ -60,7 +60,7 @@ docker pull moabukar/miniblue:0.1.0
 docker pull ghcr.io/moabukar/miniblue:0.1.0
 
 # Smoke test
-docker run -p 4566:4566 -p 4567:4567 moabukar/miniblue:0.1.0 &
+docker run -p 127.0.0.1:4566:4566 -p 127.0.0.1:4567:4567 moabukar/miniblue:0.1.0 &
 sleep 2
 curl http://localhost:4566/health
 ```

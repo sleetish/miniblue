@@ -47,6 +47,7 @@ func TestMain(m *testing.M) {
 	mysqlURL = connStr
 
 	os.Setenv("MYSQL_URL", mysqlURL)
+	os.Setenv("MINIBLUE_ENABLE_DOCKER_BACKENDS", "1")
 
 	srv := server.New()
 	ts := httptest.NewServer(srv.Handler())
@@ -56,6 +57,7 @@ func TestMain(m *testing.M) {
 
 	ts.Close()
 	os.Unsetenv("MYSQL_URL")
+	os.Unsetenv("MINIBLUE_ENABLE_DOCKER_BACKENDS")
 	if err := mysqlContainer.Terminate(ctx); err != nil {
 		log.Printf("failed to terminate MySQL container: %v", err)
 	}

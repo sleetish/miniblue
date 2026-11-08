@@ -42,7 +42,7 @@ func CleanupVMsInRG(s *store.Store, sub, rg string) {
 var dockerProbe *bool
 
 func checkDockerCached() bool {
-	if os.Getenv("MINIBLUE_DISABLE_DOCKER") != "" {
+	if os.Getenv("MINIBLUE_ENABLE_DOCKER_BACKENDS") != "1" || os.Getenv("MINIBLUE_DISABLE_DOCKER") != "" {
 		return false
 	}
 	if dockerProbe == nil {

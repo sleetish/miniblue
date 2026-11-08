@@ -8,7 +8,9 @@ miniblue works with zero configuration out of the box. This page covers everythi
 |----------|---------|-------------|
 | `PORT` | `4566` | HTTP server port |
 | `TLS_PORT` | `4567` | HTTPS server port (self-signed certificate) |
+| `LISTEN_HOST` | `127.0.0.1` (native), `0.0.0.0` (Docker image) | Address to bind; limit Docker-published ports to loopback for local use |
 | `LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warn`, `error` |
+| `MINIBLUE_ENABLE_DOCKER_BACKENDS` | _(unset)_ | Set to `1` to allow ACI/VM APIs to start real Docker containers |
 | `LOCAL_AZURE_ENDPOINT` | `http://localhost:4566` | Endpoint used by the `azlocal` CLI |
 | `LOCAL_AZURE_CERT_DIR` | `~/.miniblue` | Directory for TLS certificate and key |
 | `DATABASE_URL` | _(unset)_ | PostgreSQL connection string for persistent storage |
@@ -21,6 +23,8 @@ Example -- run on custom ports:
 ```bash
 PORT=8080 TLS_PORT=8443 ./bin/miniblue
 ```
+
+Native installs bind to loopback by default. Set `LISTEN_HOST=0.0.0.0` only when you intentionally need access from other hosts, and protect that access with network controls. Docker-backed ACI and VM execution is disabled unless `MINIBLUE_ENABLE_DOCKER_BACKENDS=1` is set.
 
 ## Ports
 
