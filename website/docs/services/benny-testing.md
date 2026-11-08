@@ -28,6 +28,47 @@ Unmatched calls return 501 unless a backend is configured. These responses do
 not run Benny's guards, scrubbing or business logic. Run actual code separately.
 OPTIONS is handled by the global CORS middleware, not the invocation handler.
 
+### Portainer Compose example
+
+Use `docker-compose.benny.yml` as the Compose path when deploying this
+repository's `main` branch as a Git stack. It publishes ports 4566 and 4567
+on all host interfaces for LAN access. Miniblue is unauthenticated; restrict
+access to trusted test clients using network controls.
+
+In the stack's environment-variable editor, set the **name** to
+`FUNCTION_MOCK_RESPONSES` and paste this JSON into the **value** field:
+
+```json
+{"POST /api/retrieve":{"status":200,"body":{"answer":"Your synthetic plan covers preventive care at 100% in-network.","confidence":0.94,"sources":[{"document_id":"synthetic-benefits-2026","title":"Synthetic Benefits Guide","plan_year":2026}]}},"POST /api/benny/start":{"status":200,"body":{"conversation_id":"synthetic-conversation-001","milestone":"started"}},"POST /api/benny/retrieve":{"status":200,"body":{"answer":"Your synthetic deductible is $500.","confidence":0.91}},"POST /api/benny/end":{"status":200,"body":{"conversation_id":"synthetic-conversation-001","outcome":"resolved"}},"POST /api/benny/*":{"status":200,"body":{"status":"fixture"}}}
+```
+
+Do not include a `${...}` wrapper or outer quotes in that field. These are
+illustrative response shapes, not a Benny contract. The file requires a
+nonempty value and passes it into the container; no backend is configured.
+All services are enabled. Responses are fixed, regardless of request contents,
+and do not create conversation state.
+
+The Compose file builds the local `miniblue:benny` image from this repository
+instead of using the upstream published image. Deploy on a Docker Standalone
+environment with Compose build support, not a Swarm stack. If your Portainer
+version does not build Git stacks, clone or pull this repository on the Docker
+host and run `docker build -t miniblue:benny .` before deployment. Use that
+local image without re-pulling it, and rebuild it after code updates.
+Redeploy/recreate the container after changing environment variables.
+
+Verify from a LAN client, replacing the example address with your Docker host:
+
+```bash
+curl -i -X POST http://192.168.1.121:4566/api/retrieve \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"What does my plan cover?"}'
+```
+
+Expect HTTP 200 and the synthetic preventive-care answer. A 501 means there is
+no matching mock or backend. A 404 indicates the route is not registered;
+check that the image was rebuilt with invocation support and that `sites` is
+enabled if you use a service filter.
+
 To forward unmatched invocations to a local Functions runtime, another mock, or
 a non-production Azure Function App, set `FUNCTION_BACKEND_URL` to a fixed
 HTTP(S) origin with optional path prefix. `/api/...` is appended. Optionally

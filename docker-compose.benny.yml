@@ -1,0 +1,17 @@
+services:
+  miniblue:
+    build: .
+    image: miniblue:benny
+    pull_policy: build
+    ports:
+      - "4566:4566"
+      - "4567:4567"
+    environment:
+      PORT: "4566"
+      LOG_LEVEL: info
+      FUNCTION_MOCK_RESPONSES: "${FUNCTION_MOCK_RESPONSES:?Set FUNCTION_MOCK_RESPONSES to a JSON object in the Portainer stack environment}"
+    healthcheck:
+      test: ["CMD", "/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
