@@ -47,6 +47,21 @@ Environment variables:
   SERVICES               Comma-separated list of services to enable (default: all)
   POSTGRES_URL           Real PostgreSQL for DB for PostgreSQL service
   REDIS_URL              Real Redis for Azure Cache for Redis service
+  SEARCH_BACKEND_URL     Fixed HTTP(S) Azure AI Search data-plane backend (optional)
+  SEARCH_BACKEND_API_KEY Operator API key for the Search backend (never taken from callers)
+  OPENAI_BACKEND_URL     Fixed HTTP(S) Azure OpenAI data-plane backend (optional)
+  OPENAI_BACKEND_API_KEY Operator API key for the OpenAI backend (never taken from callers)
+  SEARCH_MOCK_RESPONSES  JSON map of "METHOD /indexes/..." to {status,body} overrides
+  OPENAI_MOCK_RESPONSES  JSON map of "METHOD /openai/..." to {status,body} overrides
+  FUNCTION_BACKEND_URL   Fixed HTTP(S) backend for function invocation (optional)
+  FUNCTION_BACKEND_API_KEY  Operator x-functions-key for the function backend
+  FUNCTION_BACKEND_TIMEOUT  Function backend timeout (default: 10s; maximum: 1m)
+  FUNCTION_MOCK_RESPONSES   JSON map of function invocation responses
+  KEYVAULT_BACKEND_URL      Fixed Key Vault backend origin (optional)
+  KEYVAULT_BACKEND_BEARER_TOKEN  Operator bearer token for Key Vault backend
+  KEYVAULT_BACKEND_TIMEOUT  Key Vault backend timeout (default: 10s; maximum: 1m)
+  MONITOR_BACKEND_URL       Fixed backend for mock monitor records (optional)
+  MONITOR_BACKEND_API_KEY   Operator API key for monitor backend
   MINIBLUE_ENABLE_DOCKER_BACKENDS=1  Enable real Docker-backed ACI and VM services
   LOCAL_AZURE_CERT_DIR   TLS certificate directory (default: ~/.miniblue)
   MINIBLUE_INIT_DIR      Init hook scripts directory (default: /etc/miniblue/init/ready.d)
@@ -77,7 +92,10 @@ Documentation: https://moabukar.github.io/miniblue`)
 		tlsPort = "4567"
 	}
 
-	srv := server.New()
+	srv, err := server.NewWithError()
+	if err != nil {
+		log.Fatalf("invalid server configuration: %v", err)
+	}
 	handler := srv.Handler()
 
 	// Generate cert and save to ~/.miniblue/

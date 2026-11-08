@@ -43,7 +43,7 @@ No Azure account or credentials needed.
 
 ## What it does
 
-28 Azure services emulated behind a single port. Works with Terraform, Pulumi, Azure SDKs, and curl.
+Azure service mocks and configuration stubs behind a single port. Compatibility varies by service and client.
 
 | Service | Service | Service |
 |---------|---------|---------|
@@ -51,20 +51,21 @@ No Azure account or credentials needed.
 | Queue Storage | Key Vault | Cosmos DB |
 | Service Bus | Azure Functions | Virtual Networks |
 | DNS Zones | Container Registry | Event Grid |
-| App Configuration | Managed Identity | DB for PostgreSQL |
-| DB for MySQL | Azure SQL Database | Azure Cache for Redis |
-| Container Instances | Kubernetes Service (AKS) | Public IP Addresses |
-| Network Security Groups | Load Balancer | Application Gateway |
-| Storage Accounts | Virtual Machines | |
+| App Configuration | Azure AI Search | Azure OpenAI |
+| Managed Identity | DB for PostgreSQL | DB for MySQL |
+| Azure SQL Database | Azure Cache for Redis | Container Instances |
+| Kubernetes Service (AKS) | Public IP Addresses | Network Security Groups |
+| Load Balancer | Application Gateway | Storage Accounts |
+| Virtual Machines | | |
 
 ## How it compares
 
 | | LocalStack (AWS) | MiniStack (AWS) | Azurite (Azure) | miniblue |
 |---|---|---|---|---|
-| Services | 80+ | 36 | 3 (storage only) | **28** |
+| Services | 80+ | 36 | 3 (storage only) | See [API parity](website/docs/services/parity.md) |
 | Docker image | ~1GB | ~200MB | ~300MB | **~8MB** |
 | Startup | ~10s | ~5s | ~3s | **<1s** |
-| Real backends | DynamoDB Local | RDS, S3, SQS | No | **Postgres, Redis, Docker** |
+| Real backends | DynamoDB Local | RDS, S3, SQS | No | Postgres, Redis, Docker and opt-in AI passthrough |
 | Terraform | Yes | Yes | No | **Yes** |
 | License | BSL | MIT | MIT | MIT |
 
@@ -123,6 +124,8 @@ miniblue tears down its k3s containers on graceful shutdown (`SIGTERM`/`SIGINT`/
 | `SERVICES` | all | Comma-separated list to enable selectively |
 | `PERSISTENCE` | off | Set to `1` for file-based persistence |
 | `MINIBLUE_ENABLE_DOCKER_BACKENDS` | off | Set to `1` to allow ACI/VM APIs to start real Docker containers |
+| `SEARCH_BACKEND_URL`, `OPENAI_BACKEND_URL` | unset | Optional fixed data-plane backends; see [Azure AI limitations and configuration](https://miniblue.io/services/azure-ai/) |
+| `FUNCTION_BACKEND_URL`, `KEYVAULT_BACKEND_URL`, `MONITOR_BACKEND_URL` | unset | Optional fixed backends for Functions, Key Vault and test monitor records; see [test stubs](website/docs/services/benny-testing.md) |
 
 Full configuration reference in the [docs](https://miniblue.io/getting-started/configuration/).
 

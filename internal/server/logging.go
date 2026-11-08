@@ -28,19 +28,19 @@ func GetMetrics() *Metrics {
 }
 
 type logEntry struct {
-	Timestamp  string `json:"ts"`
-	Level      string `json:"level"`
-	Method     string `json:"method"`
-	Path       string `json:"path"`
-	Status     int    `json:"status"`
+	Timestamp  string  `json:"ts"`
+	Level      string  `json:"level"`
+	Method     string  `json:"method"`
+	Path       string  `json:"path"`
+	Status     int     `json:"status"`
 	LatencyMs  float64 `json:"latency_ms"`
-	RemoteAddr string `json:"remote_addr"`
-	RequestID  string `json:"request_id,omitempty"`
+	RemoteAddr string  `json:"remote_addr"`
+	RequestID  string  `json:"request_id,omitempty"`
 }
 
 type statusWriter struct {
 	http.ResponseWriter
-	status int
+	status  int
 	written bool
 }
 
@@ -86,7 +86,7 @@ func StructuredLogger(next http.Handler) http.Handler {
 			Timestamp:  time.Now().UTC().Format(time.RFC3339),
 			Level:      "info",
 			Method:     r.Method,
-			Path:       r.URL.RequestURI(),
+			Path:       r.URL.Path,
 			Status:     sw.status,
 			LatencyMs:  float64(latency.Microseconds()) / 1000.0,
 			RemoteAddr: r.RemoteAddr,

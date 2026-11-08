@@ -62,6 +62,8 @@ nav:
     - Service Bus: services/service-bus.md
     - Event Grid: services/event-grid.md
     - App Configuration: services/app-configuration.md
+    - Azure AI Search and OpenAI: services/azure-ai.md
+    - Benny Integration Test Stubs: services/benny-testing.md
     - Azure Functions: services/functions.md
     - Virtual Networks: services/virtual-networks.md
     - Public IP Addresses: services/public-ip-addresses.md

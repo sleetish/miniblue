@@ -1,6 +1,6 @@
 # Services Overview
 
-miniblue emulates 28 Azure services on a single port. All services use in-memory storage and require no authentication.
+miniblue offers Azure service mocks and configuration stubs on a single port. Storage is in-memory by default, and the API does not require authentication. Optional persistence and selected backend passthroughs require explicit configuration.
 
 ## Service status
 
@@ -13,12 +13,14 @@ miniblue emulates 28 Azure services on a single port. All services use in-memory
 | [Key Vault](key-vault.md) | `Microsoft.KeyVault` | Done | -- | Yes |
 | [Cosmos DB](cosmos-db.md) | `Microsoft.DocumentDB` | Done | -- | Yes |
 | [Service Bus](service-bus.md) | `Microsoft.ServiceBus` | Done | -- | Yes |
-| Azure Functions | `Microsoft.Web` | Done | Yes | -- |
+| [Azure Functions](functions.md) | `Microsoft.Web` | Stub | Yes | Mock/passthrough HTTP only |
+| [Monitor, Application Insights and Log Analytics](benny-testing.md) | `Microsoft.Insights`, `Microsoft.OperationalInsights` | Stub | Yes | Simplified records API |
 | [Virtual Networks](virtual-networks.md) | `Microsoft.Network` | Done | Yes | -- |
 | [DNS Zones](dns-zones.md) | `Microsoft.Network` | Done | Yes | -- |
 | [Container Registry](container-registry.md) | `Microsoft.ContainerRegistry` | Done | Yes | Yes |
 | Event Grid | `Microsoft.EventGrid` | Done | Yes | Yes |
 | App Configuration | `Microsoft.AppConfiguration` | Done | -- | Yes |
+| [Azure AI Search and OpenAI](azure-ai.md) | `Microsoft.Search`, `Microsoft.CognitiveServices` | Stub | Yes | Yes |
 | Managed Identity | IMDS | Done | -- | Yes |
 | [DB for PostgreSQL](database-postgresql.md) | `Microsoft.DBforPostgreSQL` | Done | Yes | -- |
 | [DB for MySQL](database-mysql.md) | `Microsoft.DBforMySQL` | Done | Yes | -- |

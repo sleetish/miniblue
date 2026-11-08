@@ -19,6 +19,7 @@ import (
 	"github.com/moabukar/miniblue/internal/services/appgw"
 	"github.com/moabukar/miniblue/internal/services/apps"
 	"github.com/moabukar/miniblue/internal/services/auth"
+	"github.com/moabukar/miniblue/internal/services/azureai"
 	"github.com/moabukar/miniblue/internal/services/blob"
 	"github.com/moabukar/miniblue/internal/services/cosmosdb"
 	"github.com/moabukar/miniblue/internal/services/dbmysql"
@@ -26,10 +27,12 @@ import (
 	"github.com/moabukar/miniblue/internal/services/deployments"
 	"github.com/moabukar/miniblue/internal/services/dns"
 	"github.com/moabukar/miniblue/internal/services/eventgrid"
+	"github.com/moabukar/miniblue/internal/services/functionproxy"
 	"github.com/moabukar/miniblue/internal/services/identity"
 	"github.com/moabukar/miniblue/internal/services/keyvault"
 	"github.com/moabukar/miniblue/internal/services/loadbalancer"
 	"github.com/moabukar/miniblue/internal/services/metadata"
+	"github.com/moabukar/miniblue/internal/services/monitor"
 	"github.com/moabukar/miniblue/internal/services/network"
 	"github.com/moabukar/miniblue/internal/services/nsg"
 	"github.com/moabukar/miniblue/internal/services/publicip"
@@ -47,20 +50,51 @@ import (
 )
 
 type Server struct {
-	router      *chi.Mux
-	store       *store.Store
-	services    []string
-	aksHandler  *aks.Handler
+	router          *chi.Mux
+	store           *store.Store
+	services        []string
+	aksHandler      *aks.Handler
+	azureAIHandler  *azureai.Handler
+	functionHandler *functionproxy.Handler
+	keyvaultHandler *keyvault.Handler
+	monitorHandler  *monitor.Handler
 }
 
 func New() *Server {
+	s, err := NewWithError()
+	if err != nil {
+		panic(err)
+	}
+	return s
+}
+
+// NewWithError validates optional backend configuration before exposing a server.
+func NewWithError() (*Server, error) {
+	backend := store.NewBackend()
 	s := &Server{
 		router: chi.NewRouter(),
-		store:  store.NewWithBackend(store.NewBackend()),
+		store:  store.NewWithBackend(backend),
+	}
+	var err error
+	s.azureAIHandler, err = azureai.NewHandler(s.store)
+	if err != nil {
+		return nil, err
+	}
+	s.functionHandler, err = functionproxy.NewHandler(s.store)
+	if err != nil {
+		return nil, err
+	}
+	s.keyvaultHandler, err = keyvault.NewHandlerFromEnv(s.store)
+	if err != nil {
+		return nil, err
+	}
+	s.monitorHandler, err = monitor.NewHandler(backend)
+	if err != nil {
+		return nil, err
 	}
 	s.setupMiddleware()
 	s.setupRoutes()
-	return s
+	return s, nil
 }
 
 func (s *Server) Handler() http.Handler {
@@ -171,13 +205,19 @@ func (s *Server) setupRoutes() {
 	}
 	services := []namedService{
 		{"resourcegroups", func() { resourcegroups.NewHandler(s.store).Register(s.router) }},
+		{"search", func() { s.azureAIHandler.RegisterSearch(s.router) }},
+		{"openai", func() { s.azureAIHandler.RegisterOpenAI(s.router) }},
 		{"blob", func() { blob.NewHandler(s.store).Register(s.router) }},
 		{"table", func() { table.NewHandler(s.store).Register(s.router) }},
 		{"queue", func() { queue.NewHandler(s.store).Register(s.router) }},
-		{"keyvault", func() { keyvault.NewHandler(s.store).Register(s.router) }},
+		{"keyvault", func() { s.keyvaultHandler.Register(s.router) }},
 		{"cosmosdb", func() { cosmosdb.NewHandler(s.store).Register(s.router) }},
 		{"servicebus", func() { servicebus.NewHandler(s.store).Register(s.router) }},
-		{"sites", func() { sites.NewHandler(s.store).Register(s.router) }},
+		{"sites", func() {
+			sites.NewHandler(s.store).Register(s.router)
+			s.functionHandler.Register(s.router)
+		}},
+		{"monitor", func() { s.monitorHandler.Register(s.router) }},
 		{"apps", func() { apps.NewHandler(s.store).Register(s.router) }},
 		{"network", func() { network.NewHandler(s.store).Register(s.router) }},
 		{"dns", func() { dns.NewHandler(s.store).Register(s.router) }},

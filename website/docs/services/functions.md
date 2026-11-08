@@ -1,6 +1,6 @@
 # Azure Functions
 
-miniblue emulates Azure Functions via ARM endpoints as a stub. Function apps can be created, listed and deleted but no function execution is performed.
+miniblue emulates Azure Functions via ARM endpoints as a stub. Function apps can be created, listed and deleted but no function execution is performed. HTTP invocation mocks and opt-in passthrough are documented in [Benny integration test stubs](benny-testing.md).
 
 ## API endpoints
 
@@ -14,6 +14,5 @@ miniblue emulates Azure Functions via ARM endpoints as a stub. Function apps can
 ## Limitations
 
 - Stub only: no function execution or triggers
-- No deployment slots
-- No app settings management
-- No consumption plan or premium plan configuration
+- Settings and plans are metadata only; they do not configure real hosting
+- No function-key enforcement or Key Vault reference resolution

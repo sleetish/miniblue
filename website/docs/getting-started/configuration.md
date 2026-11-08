@@ -15,6 +15,21 @@ miniblue works with zero configuration out of the box. This page covers everythi
 | `LOCAL_AZURE_CERT_DIR` | `~/.miniblue` | Directory for TLS certificate and key |
 | `DATABASE_URL` | _(unset)_ | PostgreSQL connection string for persistent storage |
 | `MINIBLUE_STORAGE_ENDPOINT` | _(unset)_ | Overrides storage account data-plane endpoints to point to local server (enables SDK/data-plane testing) |
+| `SEARCH_BACKEND_URL` | _(unset)_ | Optional fixed `http(s)` Azure AI Search data-plane backend |
+| `SEARCH_BACKEND_API_KEY` | _(unset)_ | Operator API key for the Search backend; inbound caller credentials are not forwarded |
+| `OPENAI_BACKEND_URL` | _(unset)_ | Optional fixed `http(s)` Azure OpenAI data-plane backend |
+| `OPENAI_BACKEND_API_KEY` | _(unset)_ | Operator API key for the OpenAI backend; inbound caller credentials are not forwarded |
+| `SEARCH_MOCK_RESPONSES` | _(unset)_ | JSON operation-to-response overrides for Search; supports testing error statuses such as 429 |
+| `OPENAI_MOCK_RESPONSES` | _(unset)_ | JSON operation-to-response overrides for OpenAI |
+| `FUNCTION_MOCK_RESPONSES` | _(unset)_ | JSON map of function invocations to canned JSON responses |
+| `FUNCTION_BACKEND_URL` | _(unset)_ | Fixed function HTTP backend origin and optional path prefix |
+| `FUNCTION_BACKEND_API_KEY` | _(unset)_ | Operator-supplied `x-functions-key` for the function backend |
+| `FUNCTION_BACKEND_TIMEOUT` | `10s` | Backend timeout; maximum `1m` |
+| `KEYVAULT_BACKEND_URL` | _(unset)_ | Fixed Key Vault backend origin; HTTPS required except loopback |
+| `KEYVAULT_BACKEND_BEARER_TOKEN` | _(unset)_ | Operator-supplied bearer token for the Key Vault backend |
+| `KEYVAULT_BACKEND_TIMEOUT` | `10s` | Backend timeout; maximum `1m` |
+| `MONITOR_BACKEND_URL` | _(unset)_ | Fixed backend for `/monitor/records` operations |
+| `MONITOR_BACKEND_API_KEY` | _(unset)_ | Operator-supplied `api-key` for the monitor backend |
 
 When set, storage accounts return local endpoints (e.g., `http://localhost:4566/blob/{accountName}/`) instead of real Azure endpoints (e.g., `https://{accountName}.blob.core.windows.net/`). This allows SDKs and tools to connect directly to miniblue's local blob/queue/table/file services for data-plane testing.
 
@@ -25,6 +40,10 @@ PORT=8080 TLS_PORT=8443 ./bin/miniblue
 ```
 
 Native installs bind to loopback by default. Set `LISTEN_HOST=0.0.0.0` only when you intentionally need access from other hosts, and protect that access with network controls. Docker-backed ACI and VM execution is disabled unless `MINIBLUE_ENABLE_DOCKER_BACKENDS=1` is set.
+
+Azure AI Search and Azure OpenAI default to offline deterministic mocks. Backend URLs are fixed at process startup, redirects are disabled, requests are bounded and timed out, and ARM configuration remains local. See [Azure AI Search and OpenAI](../services/azure-ai.md) for routes, override syntax, and the explicit feature limits.
+
+Functions, Key Vault and monitor test APIs also default to offline behavior. See [Benny integration test stubs](../services/benny-testing.md) for routes, configuration, and important security and capability limitations.
 
 ## Ports
 

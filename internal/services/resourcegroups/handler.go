@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/moabukar/miniblue/internal/azerr"
 	"github.com/moabukar/miniblue/internal/services/aks"
+	"github.com/moabukar/miniblue/internal/services/monitor"
 	"github.com/moabukar/miniblue/internal/services/vm"
 	"github.com/moabukar/miniblue/internal/store"
 )
@@ -190,6 +191,10 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	h.store.DeleteByPrefix("sb:armqueue:" + p)
 	h.store.DeleteByPrefix("sb:armtopic:" + p)
 	h.store.DeleteByPrefix("appconfig:store:" + p)
+	h.store.DeleteByPrefix("search:service:" + p)
+	h.store.DeleteByPrefix("openai:account:" + p)
+	h.store.DeleteByPrefix("openai:deployment:" + p)
+	monitor.CleanupResourcesInRG(h.store, sub, name)
 
 	// Async operation - return Location header for polling (Terraform requires this on 202)
 	scheme := "http"

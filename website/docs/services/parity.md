@@ -19,7 +19,8 @@ What's implemented, stubbed, and unsupported in miniblue compared to real Azure 
 | DNS Records | Full | Full | - | Full | - | A, CNAME, MX, TXT, SOA, NS |
 | Container Registry | Full | Full | Full | Full | - | Name availability check, replications |
 | Event Grid Topics | Full | Full | Full | Full | - | Event publishing on data plane |
-| Azure Functions | Stub | Stub | Stub | Stub | - | No function execution |
+| Azure Functions | Stub | Stub | Stub | Stub | - | No execution; HTTP mock or opt-in passthrough |
+| Application Insights, Log Analytics, Monitor | Stub | Stub | Stub | Stub | - | Configuration only; no alert evaluation or Azure telemetry ingestion |
 | DB for PostgreSQL | Full | Full | Full | Full | - | Real DB creation via POSTGRES_URL |
 | DB for MySQL | Stub | Stub | Stub | Stub | - | ARM only, no real MySQL |
 | Azure SQL Database | Stub | Stub | Stub | Stub | - | ARM only, no real SQL Server |
@@ -32,6 +33,8 @@ What's implemented, stubbed, and unsupported in miniblue compared to real Azure 
 | Load Balancer | Full | Full | Full | Full | - | Frontends, backends, rules, probes, NAT |
 | Application Gateway | Full | Full | Full | Full | - | SKU, frontends, backends, listeners, rules, probes, WAF |
 | Storage Accounts | Full | Full | Full | Full | - | Shared key auth, blob/queue/table/file endpoints |
+| Azure AI Search services | Stub | Stub | Stub | Stub | - | ARM configuration and index CRUD; deterministic lexical search, synthetic semantic score |
+| Azure OpenAI accounts/deployments | Stub | Stub | Stub | Stub | - | `kind: OpenAI`; ARM configuration only |
 | Subscriptions | Full | Full | - | - | - | Mock subscription |
 | Tenants | - | - | Full | - | - | Mock tenant |
 | Providers | Full | Full | Full | - | - | Registration always succeeds |
@@ -43,12 +46,16 @@ What's implemented, stubbed, and unsupported in miniblue compared to real Azure 
 | Blob Storage | Create container, upload, download, list, delete | Full | Content-length tracking |
 | Table Storage | Create table, upsert, get, query, delete entity | Full | Partition/row key support |
 | Queue Storage | Create queue, send, receive, clear, delete | Full | Dequeue count tracking |
-| Key Vault | Set, get, list, delete secrets | Full | Keys and certificates not supported |
+| Key Vault | Set, get, list, delete secrets; version history | Stub | No auth, Key Vault references or rotation propagation |
 | Cosmos DB | Create, get, replace, delete, list documents | Full | SQL API only, no query language |
 | Service Bus | Create queue/topic, send, receive, delete | Full | No subscriptions, no dead-letter |
 | App Configuration | Set, get, list, delete key-values | Full | No labels, no feature flags |
 | Event Grid | Publish events | Full | No event subscriptions |
 | Container Registry | List manifests, tags | Stub | Docker v2 API stubs only |
+| Azure AI Search | Index CRUD, document upload/merge/delete, basic search | Stub | Deterministic lexical matching/filter; semantic score is synthetic |
+| Azure OpenAI | Embeddings, chat/completions | Stub | Deterministic synthetic vectors and canned text; no inference |
+| Function HTTP invocation | Canned responses and passthrough | Stub | No Functions runtime execution |
+| Monitor test records | Insert, list by conversation, delete with cutoff | Stub | Custom API, no automatic retention, KQL or alerts |
 
 ## Auth and Infrastructure
 
@@ -59,7 +66,7 @@ What's implemented, stubbed, and unsupported in miniblue compared to real Azure 
 | Instance discovery | Full | Authority validation (internal) |
 | Managed Identity (IMDS) | Full | Token endpoint for workload identity |
 | Cloud metadata | Full | Terraform provider metadata |
-| /health | Full | 26 services listed |
+| /health | Full | Lists enabled services |
 | /metrics | Full | Uptime, request count, error rate |
 
 ## Not Implemented
@@ -68,7 +75,7 @@ These Azure services have no emulation:
 
 - Azure Kubernetes Service (AKS)
 - Azure App Service
-- Azure Monitor / Log Analytics
+- Azure Monitor / Log Analytics execution, KQL and telemetry ingestion
 - Azure Active Directory (beyond mock tokens)
 - Azure Policy
 - Azure RBAC

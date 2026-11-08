@@ -8,6 +8,8 @@ miniblue emulates Azure Key Vault secret management. Create, read, list, and del
 |--------|------|-------------|
 | `PUT` | `/keyvault/{vault}/secrets/{name}` | Set a secret |
 | `GET` | `/keyvault/{vault}/secrets/{name}` | Get a secret |
+| `GET` | `/keyvault/{vault}/secrets/{name}/{version}` | Get a historical version |
+| `GET` | `/keyvault/{vault}/secrets/{name}/versions` | List version metadata |
 | `DELETE` | `/keyvault/{vault}/secrets/{name}` | Delete a secret |
 | `GET` | `/keyvault/{vault}/secrets` | List all secrets |
 
@@ -33,7 +35,11 @@ Response:
 }
 ```
 
-Setting the same secret name again overwrites the value.
+Setting the same secret name again creates a version and updates the latest
+value. The `X-Miniblue-Secret-Version` response header identifies the version.
+This is a mock of version history, not real Key Vault rotation propagation.
+See [Benny integration test stubs](benny-testing.md) for backend passthrough
+and security limitations.
 
 ## Get a secret
 
@@ -54,7 +60,6 @@ curl "http://localhost:4566/keyvault/myvault/secrets"
   "value": [
     {
       "id": "https://myvault.vault.azure.net/secrets/db-password",
-      "value": "P@ssw0rd123!",
       "attributes": {
         "created": "2026-01-01T00:00:00Z",
         "enabled": "true",
@@ -63,7 +68,6 @@ curl "http://localhost:4566/keyvault/myvault/secrets"
     },
     {
       "id": "https://myvault.vault.azure.net/secrets/api-key",
-      "value": "sk-abc123",
       "attributes": {
         "created": "2026-01-01T00:00:01Z",
         "enabled": "true",
