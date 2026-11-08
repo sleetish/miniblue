@@ -3,8 +3,8 @@ services:
     build: .
     image: moabukar/miniblue:latest
     ports:
-      - "127.0.0.1:4566:4566"
-      - "127.0.0.1:4567:4567"
+      - "4566:4566"
+      - "4567:4567"
     environment:
       - PORT=4566
       - LOG_LEVEL=info

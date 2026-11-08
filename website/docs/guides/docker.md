@@ -51,6 +51,8 @@ services:
 docker compose up -d
 ```
 
+The repository's Compose stack publishes ports on all host interfaces so trusted LAN clients can connect. The API has no authentication; allow these ports only from trusted LAN devices and block access from untrusted networks. Docker-published ports may bypass some host-firewall rules, so verify your firewall controls Docker traffic too. To keep Miniblue host-local instead, bind each port to `127.0.0.1` (for example, `127.0.0.1:4566:4566`).
+
 ### With your application
 
 ```yaml
